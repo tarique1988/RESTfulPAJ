@@ -3,6 +3,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const studentRouter = require("./Routers/studentsRouter");
+const AdminRouter = require("./Routers/adminRouter");
 
 const mongoose = require("mongoose");
 
@@ -42,6 +43,7 @@ app.use((req, res, next) => {
 
 // Add All Routers
 app.use("/students", studentRouter);
+app.use("/admin", AdminRouter);
 
 // Page not found route - Error 404
 app.use((req, res, next) => {

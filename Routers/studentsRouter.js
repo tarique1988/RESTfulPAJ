@@ -6,10 +6,14 @@ const Student = require("../Models/StudentModel");
 // Find and display all the students
 router.get("/", (req, res) => {
   Student.find()
+    .exec()
     .then((students) => {
-      if (students.length > 0)
-        res.status(200).json({ count: students.length, students: students });
-      else {
+      if (students.length > 0) {
+        res.status(200).json({
+          count: students.length,
+          students: students,
+        });
+      } else {
         res.status(500).json({ error: "Students not found!" });
       }
     })
@@ -39,6 +43,7 @@ router.post("/", (req, res) => {
 // Lookup a student by id and display
 router.get("/:id", (req, res) => {
   Student.findById(req.params.id)
+    .exec()
     .then((result) => {
       if (result) res.status(200).json(result);
       else res.status(500).json({ error: "Student not found!" });
@@ -55,9 +60,18 @@ router.patch("/:id", (req, res) => {
 });
 
 router.delete("/:id", (req, res) => {
-  res.status(200).json({
-    message: `Here you can DELETE the student with id ${req.params.id}`,
-  });
+  Student.findByIdAndRemove(req.params.id)
+    .exec()
+    .then((result) => {
+      if (result)
+        res
+          .status(200)
+          .json({ message: "Student deleted successfully!", student: result });
+      else res.status(500).json({ error: "User not found!" });
+    })
+    .catch((err) => {
+      res.status(500).json({ error: err.message });
+    });
 });
 
 module.exports = router;
