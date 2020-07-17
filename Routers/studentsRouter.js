@@ -37,7 +37,10 @@ router.post("/", AuthorizationCheck, (req, res) => {
   student
     .save()
     .then((result) => {
-      if (result) res.status(201).json(result);
+      if (result)
+        res
+          .status(201)
+          .json({ loggedInAs: req.body.currentUser.name, student: result });
       else res.status(500).json({ error: "Failed to add student!" });
     })
     .catch((err) => {
@@ -51,7 +54,11 @@ router.get("/:id", AuthorizationCheck, (req, res) => {
     .select("-__v")
     .exec()
     .then((result) => {
-      if (result) res.status(200).json(result);
+      if (result)
+        res.status(200).json({
+          loggedInAs: req.body.currentUser.name,
+          student: result,
+        });
       else res.status(500).json({ error: "Student not found!" });
     })
     .catch((err) => {
@@ -70,9 +77,10 @@ router.patch("/:studentId", AuthorizationCheck, (req, res) => {
     .exec()
     .then((result) => {
       if (result.ok === 1)
-        res
-          .status(200)
-          .json({ message: `Student with id: ${id} is now updated!` });
+        res.status(200).json({
+          loggedInAs: req.body.currentUser.name,
+          message: `Student with id: ${id} is now updated!`,
+        });
     })
     .catch((err) => {
       res.status(500).json({ error: err.message });
@@ -87,7 +95,11 @@ router.delete("/:id", AuthorizationCheck, (req, res) => {
       if (result)
         res
           .status(200)
-          .json({ message: "Student deleted successfully!", student: result });
+          .json({
+            message: "Student deleted successfully!",
+            loggedInAs: req.body.currentUser.name,
+            student: result,
+          });
       else res.status(500).json({ error: "User not found!" });
     })
     .catch((err) => {
