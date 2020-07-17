@@ -1,16 +1,19 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const AuthorizationCheck = require("../Controllers/AuthorizationCheck");
+
 const router = express.Router();
 const Student = require("../Models/StudentModel");
 
 // Find and display all the students
-router.get("/", (req, res) => {
+router.get("/", AuthorizationCheck, (req, res) => {
   Student.find()
     .exec()
     .then((students) => {
       if (students.length > 0) {
         res.status(200).json({
           count: students.length,
+          loggedInAs: req.body.currentUser.name,
           students: students,
         });
       } else {
@@ -23,7 +26,7 @@ router.get("/", (req, res) => {
 });
 
 // Save a student and display the result
-router.post("/", (req, res) => {
+router.post("/", AuthorizationCheck, (req, res) => {
   var student = new Student({
     _id: new mongoose.Types.ObjectId(),
     name: req.body.name,
@@ -41,7 +44,7 @@ router.post("/", (req, res) => {
 });
 
 // Lookup a student by id and display
-router.get("/:id", (req, res) => {
+router.get("/:id", AuthorizationCheck, (req, res) => {
   Student.findById(req.params.id)
     .exec()
     .then((result) => {
@@ -53,13 +56,13 @@ router.get("/:id", (req, res) => {
     });
 });
 
-router.patch("/:id", (req, res) => {
+router.patch("/:id", AuthorizationCheck, (req, res) => {
   res.status(200).json({
     message: `Here you can PATCH the student with id ${req.params.id}.`,
   });
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", AuthorizationCheck, (req, res) => {
   Student.findByIdAndRemove(req.params.id)
     .exec()
     .then((result) => {
