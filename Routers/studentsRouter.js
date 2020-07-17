@@ -4,10 +4,12 @@ const AuthorizationCheck = require("../Controllers/AuthorizationCheck");
 
 const router = express.Router();
 const Student = require("../Models/StudentModel");
+const { request } = require("express");
 
 // Find and display all the students
 router.get("/", AuthorizationCheck, (req, res) => {
   Student.find()
+    .select("-__v")
     .exec()
     .then((students) => {
       if (students.length > 0) {
@@ -46,6 +48,7 @@ router.post("/", AuthorizationCheck, (req, res) => {
 // Lookup a student by id and display
 router.get("/:id", AuthorizationCheck, (req, res) => {
   Student.findById(req.params.id)
+    .select("-__v")
     .exec()
     .then((result) => {
       if (result) res.status(200).json(result);
@@ -56,14 +59,29 @@ router.get("/:id", AuthorizationCheck, (req, res) => {
     });
 });
 
-router.patch("/:id", AuthorizationCheck, (req, res) => {
-  res.status(200).json({
-    message: `Here you can PATCH the student with id ${req.params.id}.`,
-  });
+router.patch("/:studentId", AuthorizationCheck, (req, res) => {
+  const id = req.params.studentId;
+  const updateOperations = {};
+  for (const operations of req.body) {
+    updateOperations[operations.propertyName] = operations.propertyValue;
+  }
+
+  Student.update({ _id: id }, { $set: updateOperations })
+    .exec()
+    .then((result) => {
+      if (result.ok === 1)
+        res
+          .status(200)
+          .json({ message: `Student with id: ${id} is now updated!` });
+    })
+    .catch((err) => {
+      res.status(500).json({ error: err.message });
+    });
 });
 
 router.delete("/:id", AuthorizationCheck, (req, res) => {
   Student.findByIdAndRemove(req.params.id)
+    .select("-__v")
     .exec()
     .then((result) => {
       if (result)

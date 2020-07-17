@@ -36,6 +36,7 @@ router.post("/signup", (req, res) => {
 
 router.post("/login", (req, res) => {
   Admin.find({ email: req.body.email })
+    .select("-__v")
     .exec()
     .then((admin) => {
       bcrypt.compare(req.body.password, admin[0].password, (err, result) => {

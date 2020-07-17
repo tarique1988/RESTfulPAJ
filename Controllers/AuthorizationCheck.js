@@ -10,7 +10,10 @@ module.exports = AuthorizationCheck = (req, res, next) => {
           .status(500)
           .json({ error: "You're not authorized to view this content!" });
       } else {
-        req.body.currentUser = user;
+        req.body.currentUser = {
+          name: user.name,
+          email: user.email,
+        };
         next();
       }
     });
