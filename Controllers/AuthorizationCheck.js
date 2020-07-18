@@ -7,7 +7,7 @@ module.exports = AuthorizationCheck = (req, res, next) => {
     jwt.verify(token, process.env.JWT_TOKEN_KEY, (err, user) => {
       if (err) {
         res
-          .status(500)
+          .status(401)
           .json({ error: "You're not authorized to view this content!" });
       } else {
         req.body.currentUser = {
